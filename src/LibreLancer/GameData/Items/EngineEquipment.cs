@@ -39,6 +39,6 @@ namespace LibreLancer.GameData.Items
         }
         public Data.Equipment.Engine Def;
         public float CruiseAccelTime = 5;
-        public float CruiseSpeed = 300;
+        public float CruiseSpeed = 1000;
     }
 }
