@@ -23,10 +23,11 @@ namespace LibreLancer.Client.Components
                 fireFx[i].Active = Enabled;
             }
 		}
+
 		public override void Register(Physics.PhysicsWorld physics)
         {
             GameDataManager gameData;
-            if ((gameData = GetGameData()) != null)
+            if ((gameData = GetGameData()) != null && Equip.Particles != null)
             {
                 var resman = GetResourceManager();
                 var pfx = Equip.Particles.GetEffect(resman);
