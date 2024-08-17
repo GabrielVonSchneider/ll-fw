@@ -775,6 +775,7 @@ namespace LibreLancer
                     var eqp = new GameData.Items.PowerEquipment();
                     eqp.Def = pc;
                     eqp.ModelFile = ResolveDrawable(pc.MaterialLibrary, pc.DaArchetype);
+                    eqp.HpType = "internal";
                     equip = eqp;
                 }
                 if (val is Data.Equipment.CountermeasureDropper cms)
@@ -857,7 +858,8 @@ namespace LibreLancer
                 {
                     var eq = new GameData.Items.ScannerEquipment
                     {
-                        Def = sc
+                        Def = sc,
+                        HpType = "internal",
                     };
                     equip = eq;
                 }
@@ -865,7 +867,8 @@ namespace LibreLancer
                 {
                     var eq = new GameData.Items.TractorEquipment
                     {
-                        Def = tc
+                        Def = tc,
+                        HpType = "internal",
                     };
                     equip = eq;
                 }

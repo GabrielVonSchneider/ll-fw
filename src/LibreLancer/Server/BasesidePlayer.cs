@@ -22,10 +22,17 @@ public class BasesidePlayer : IBasesidePlayer
         Player = player;
     }
 
-    string FirstAvailableHardpoint(string hptype)
+    string FirstAvailableHardpoint(Equipment eq)
     {
-        if (string.IsNullOrWhiteSpace(hptype)) return null;
-        if (!Player.Character.Ship.PossibleHardpoints.TryGetValue(hptype, out var candidates))
+        if (eq.HpType == "internal")
+        {
+            return Player.Character.Items.Any(i => i.Equipment.GetType() == eq.GetType() && i.Hardpoint != null)
+                ? null
+                : "1";
+        }
+
+        if (string.IsNullOrWhiteSpace(eq.HpType)) return null;
+        if (!Player.Character.Ship.PossibleHardpoints.TryGetValue(eq.HpType, out var candidates))
             return null;
         int currIndex = int.MaxValue;
         string currValue = null;
@@ -56,7 +63,7 @@ public class BasesidePlayer : IBasesidePlayer
         if (Player.Character.Credits >= cost)
         {
             string hp = count == 1
-                ? FirstAvailableHardpoint(g.Good.Equipment.HpType)
+                ? FirstAvailableHardpoint(g.Good.Equipment)
                 : null;
             if (hp == null &&
                 count > CargoUtilities.GetItemLimit(Player.Character.Items, Player.Character.Ship, g.Good.Equipment))
@@ -379,30 +386,30 @@ public class BasesidePlayer : IBasesidePlayer
             return Task.FromResult(false);
         }
 
-        var slot = Player.Character.Items.FirstOrDefault(x => x.ID == id);
-        if (slot == null)
+        var item = Player.Character.Items.FirstOrDefault(x => x.ID == id);
+        if (item == null)
         {
-            FLLog.Error("Player", $"{Player.Name} tried to mount unknown slot {id}");
+            FLLog.Error("Player", $"{Player.Name} tried to mount unknown item {id}");
             return Task.FromResult(false);
         }
 
-        if (!string.IsNullOrEmpty(slot.Hardpoint))
+        if (!string.IsNullOrEmpty(item.Hardpoint))
         {
             FLLog.Error("Player", $"{Player.Name} tried to mount already mounted item {id}");
             return Task.FromResult(false);
         }
 
-        string hp = FirstAvailableHardpoint(slot.Equipment.HpType);
+        string hp = FirstAvailableHardpoint(item.Equipment);
         if (hp == null)
         {
             FLLog.Error("Player",
-                $"{Player.Name} has no hp available to mount {slot.Equipment.Nickname} ({slot.Equipment.HpType})");
+                $"{Player.Name} has no hp available to mount {item.Equipment.Nickname} ({item.Equipment.HpType})");
             return Task.FromResult(false);
         }
 
         using (var c = Player.Character.BeginTransaction())
         {
-            slot.Hardpoint = hp;
+            item.Hardpoint = hp;
             c.CargoModified();
         }
 

@@ -63,7 +63,7 @@ function good_list_item(good, purpose, preview, onmount)
 	if (good.Icon != nil) {
 		good_icon_3db(good.Icon, li.ItemA)
 		if (purpose != "ship" && good.MountIcon && !preview) {
-			local mount_button = mount_icon(good.IdsHardpoint != 0, good.CanMount, onmount)
+			local mount_button = mount_icon(good.Hardpoint != nil && good.Hardpoint != '', good.CanMount, onmount)
 			mount_button.X = 3
 			mount_button.Y = 2
 			li.ItemA.Children.Add(mount_button)
@@ -88,7 +88,7 @@ function good_list_item(good, purpose, preview, onmount)
 	tb.MarginX = 3
 	li.ItemB.Children.Add(tb)
 	// Hardpoint
-	if (good.IdsHardpoint != 0 && !preview) {
+	if (good.Hardpoint != nil && good.Hardpoint != '' && !preview) {
 		local tbh = NewObject("TextBlock")	
 		tbh.Anchor = AnchorKind.BottomLeft
 		tbh.HorizontalAlignment = HorizontalAlignment.Left

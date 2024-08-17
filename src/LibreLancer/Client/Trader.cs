@@ -47,7 +47,9 @@ namespace LibreLancer.Client
         static bool InternalFilter(Equipment equip)
         {
             return equip is ShieldBatteryEquipment ||
-                   equip is RepairKitEquipment;
+                   equip is RepairKitEquipment ||
+                   equip is PowerEquipment ||
+                   equip is ScannerEquipment;
         }
         static Trader()
         {
@@ -178,10 +180,15 @@ namespace LibreLancer.Client
             return p;
         }
 
-        bool CanMount(string hpType)
+        bool CanMount(Equipment eq)
         {
-            if(string.IsNullOrWhiteSpace(hpType) || session.PlayerShip == null) return false;
-            if (!session.PlayerShip.PossibleHardpoints.TryGetValue(hpType, out var possible))
+            if (eq.HpType == "internal")
+            {
+                return !session.Items.Any(i => i.Equipment.GetType() == eq.GetType() && i.Hardpoint != null);
+            }
+
+            if(string.IsNullOrWhiteSpace(eq.HpType) || session.PlayerShip == null) return false;
+            if (!session.PlayerShip.PossibleHardpoints.TryGetValue(eq.HpType, out var possible))
                 return false;
             foreach (var hp in possible)
             {
@@ -213,7 +220,8 @@ namespace LibreLancer.Client
                 Volume = item.Equipment.Volume,
                 Combinable = item.Equipment.Good.Ini.Combinable,
                 CanMount = canMount,
-                Equipment = item.Equipment
+                Equipment = item.Equipment,
+                Hardpoint = item.Hardpoint,
             };
         }
 
@@ -231,9 +239,9 @@ namespace LibreLancer.Client
         public UIInventoryItem[] GetPlayerGoods(string filter)
         {
             if (session.PlayerShip == null) return Array.Empty<UIInventoryItem>();
-
             List<UIInventoryItem> inventoryItems = new List<UIInventoryItem>();
             var filterfunc = GetFilter(filter);
+
             if (session.PlayerShip != null)
             {
                 foreach (var hardpoint in session.PlayerShip.HardpointTypes)
@@ -283,15 +291,28 @@ namespace LibreLancer.Client
                     inventoryItems.Add(ui);
                 }
             }
+
             foreach (var item in session.Items)
             {
                 if (item.Equipment.Good == null) continue;
-                if (!string.IsNullOrEmpty(item.Hardpoint)) continue;
                 if(!filterfunc(item.Equipment)) continue;
                 var price = GetPrice(item.Equipment.Good);
                 if (item.Equipment is not CommodityEquipment)
                     price = (ulong) (price * TradeConstants.EQUIP_RESALE_MULTIPLIER);
-                inventoryItems.Add(FromNetCargo(item, price, CanMount(item.Equipment.HpType)));
+                UIInventoryItem ui;
+                if (filter == "internal")
+                {
+                    //the ui doesn't display internal "hardpoints", so equipped internals are handled here.
+                    bool canMount = item.Hardpoint != null || CanMount(item.Equipment);
+                    ui = FromNetCargo(item, GetPrice(item.Equipment.Good), canMount);
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(item.Hardpoint)) continue;
+                    ui = FromNetCargo(item, price, CanMount(item.Equipment));
+                }
+
+                inventoryItems.Add(ui);
             }
             SortGoods(session, inventoryItems);
             return inventoryItems.ToArray();
