@@ -227,6 +227,13 @@ namespace LibreLancer.Client
 
         public int GetPurchaseLimit(UIInventoryItem item)
         {
+            //hack: selecting an empty slot passes null as the item
+            //is there a way to do this more elegantly?
+            if (item.Equipment is null)
+            {
+                return 0;
+            }
+
             var maxAmount = (int) Math.Floor(session.Credits / item.Price);
             var holdLimit = CargoUtilities.GetItemLimit(session.Items, session.PlayerShip, item.Equipment);
             return Math.Min(maxAmount, holdLimit);
