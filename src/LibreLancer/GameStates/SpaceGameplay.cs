@@ -905,6 +905,7 @@ World Time: {12:F2}
                     if (steering.EngineKill)
                     {
                         steering.Cruise = false;
+                        shipInput.Throttle = 1;
                     }
 
                     break;
