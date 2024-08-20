@@ -227,6 +227,7 @@ namespace LibreLancer.Client
             public StrafeControls Strafe;
             public bool Thrust;
             public bool CruiseEnabled;
+            public bool EngineKill;
             public ProjectileFireCommand? FireCommand;
         }
 
@@ -235,12 +236,13 @@ namespace LibreLancer.Client
             i++;
             return new NetInputControls()
             {
-                Tick =  moveState[^i].Tick,
+                Tick = moveState[^i].Tick,
                 Steering = moveState[^i].Steering,
                 AimPoint = moveState[^i].AimPoint,
                 Strafe = moveState[^i].Strafe,
                 Throttle = moveState[^i].Throttle,
                 Cruise = moveState[^i].CruiseEnabled,
+                EngineKill = moveState[^i].EngineKill,
                 Thrust = moveState[^i].Thrust,
                 FireCommand = moveState[^i].FireCommand,
             };
@@ -281,6 +283,7 @@ namespace LibreLancer.Client
                     Throttle = phys.EnginePower,
                     Thrust = steering.Thrust,
                     CruiseEnabled = steering.Cruise,
+                    EngineKill = steering.EngineKill,
                     FireCommand = gp.world.Projectiles.GetQueuedRequest(),
                 });
 

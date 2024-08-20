@@ -399,6 +399,7 @@ namespace LibreLancer.Server.Components
             si.InRoll = 0;
             si.Cruise = false;
             si.Thrust = false;
+            si.EngineKill = false;
 
             switch (currentState) {
                 case StateGraphEntry.NULL:

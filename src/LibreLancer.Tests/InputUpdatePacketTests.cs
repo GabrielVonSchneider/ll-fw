@@ -22,6 +22,7 @@ public class InputUpdatePacketTests
             Strafe = StrafeControls.Left,
             Throttle = 1,
             Thrust = false,
+            EngineKill = false,
             Tick = 98
         };
 

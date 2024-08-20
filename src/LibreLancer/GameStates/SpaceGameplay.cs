@@ -895,7 +895,19 @@ World Time: {12:F2}
 			{
 				case InputAction.USER_CRUISE:
                     steering.Cruise = !steering.Cruise;
+                    if (steering.Cruise)
+                    {
+                        steering.EngineKill = false;
+                    }
 					break;
+                case InputAction.USER_MANEUVER_ENGINEKILL:
+                    steering.EngineKill = !steering.EngineKill;
+                    if (steering.EngineKill)
+                    {
+                        steering.Cruise = false;
+                    }
+
+                    break;
 				case InputAction.USER_TURN_SHIP:
 					mouseFlight = !mouseFlight;
 					break;
@@ -965,6 +977,7 @@ World Time: {12:F2}
             steering.Thrust = false;
             shipInput.Reverse = false;
             steering.Cruise = false;
+            steering.EngineKill = false;
         }
 
         bool GetCrosshair(out Vector2 screenPos, out Vector3 worldPos)

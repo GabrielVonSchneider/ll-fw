@@ -120,6 +120,7 @@ namespace LibreLancer.Server.Components
                         phys.EnginePower = 0;
                         phys.ThrustEnabled = false;
                         phys.CruiseEnabled = false;
+                        phys.EngineKillEnabled = false;
                     }
                     else
                     {
@@ -128,6 +129,7 @@ namespace LibreLancer.Server.Components
                         phys.EnginePower = input.Throttle;
                         phys.ThrustEnabled = input.Thrust;
                         phys.CruiseEnabled = input.Cruise;
+                        phys.EngineKillEnabled = input.EngineKill;
                         if(input.FireCommand != null)
                             Parent.GetWorld().Server.FireProjectiles(input.FireCommand.Value, Player);
                     }

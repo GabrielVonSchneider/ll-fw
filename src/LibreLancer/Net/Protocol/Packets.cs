@@ -398,6 +398,7 @@ namespace LibreLancer.Net.Protocol
         public float Throttle;
         public bool Cruise;
         public bool Thrust;
+        public bool EngineKill;
         public ProjectileFireCommand? FireCommand;
     }
 
@@ -428,6 +429,7 @@ namespace LibreLancer.Net.Protocol
             writer.PutUInt((uint)cur.Strafe, 4);
             writer.PutBool(cur.Cruise);
             writer.PutBool(cur.Thrust);
+            writer.PutBool(cur.EngineKill);
             writer.PutBool(cur.Throttle != baseline.Throttle);
             writer.PutBool(cur.Steering != baseline.Steering);
             writer.PutBool(cur.AimPoint != baseline.AimPoint);
@@ -493,6 +495,7 @@ namespace LibreLancer.Net.Protocol
             nc.Strafe = (StrafeControls)reader.GetUInt(4);
             nc.Cruise = reader.GetBool();
             nc.Thrust = reader.GetBool();
+            nc.EngineKill = reader.GetBool();
             bool readThrottle = reader.GetBool();
             bool readSteering = reader.GetBool();
             bool readAimPoint = reader.GetBool();
@@ -515,6 +518,7 @@ namespace LibreLancer.Net.Protocol
             p.Current.Strafe = (StrafeControls) br.GetUInt(4);
             p.Current.Cruise = br.GetBool();
             p.Current.Thrust = br.GetBool();
+            p.Current.EngineKill = br.GetBool();
             var throttle = br.GetUInt(2);
             if (throttle == 0) p.Current.Throttle = 0;
             else if (throttle == 1) p.Current.Throttle = 1;
@@ -540,6 +544,7 @@ namespace LibreLancer.Net.Protocol
             bw.PutUInt((uint)Current.Strafe, 4);
             bw.PutBool(Current.Cruise);
             bw.PutBool(Current.Thrust);
+            bw.PutBool(Current.EngineKill);
             if (Current.Throttle == 0){
                 bw.PutUInt(0, 2);
             } else if (Current.Throttle >= 1){
