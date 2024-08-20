@@ -1039,6 +1039,10 @@ World Time: {12:F2}
             if (!ui.MouseWanted(Game.Mouse.X, Game.Mouse.Y))
             {
                 shipInput.Throttle = MathHelper.Clamp(shipInput.Throttle + (Game.Mouse.Wheel / 3f), 0, 1);
+                if (Game.Mouse.Wheel != 0)
+                {
+                    steering.EngineKill = false;
+                }
             }
 
             shipInput.Reverse = false;
@@ -1049,12 +1053,14 @@ World Time: {12:F2}
 				{
                     shipInput.Throttle += (float)(delta);
 					shipInput.Throttle = MathHelper.Clamp(shipInput.Throttle, 0, 1);
+                    steering.EngineKill = false;
 				}
 
 				else if (Input.IsActionDown(InputAction.USER_DEC_THROTTLE))
 				{
                     shipInput.Throttle -= (float)(delta);
                     shipInput.Throttle = MathHelper.Clamp(shipInput.Throttle, 0, 1);
+                    steering.EngineKill = false;
 				}
                 steering.Thrust = Input.IsActionDown(InputAction.USER_AFTERBURN);
                 shipInput.Reverse = Input.IsActionDown(InputAction.USER_MANEUVER_BRAKE_REVERSE);
