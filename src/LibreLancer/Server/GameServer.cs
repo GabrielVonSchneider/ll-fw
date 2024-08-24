@@ -37,6 +37,7 @@ namespace LibreLancer.Server
         public GameDataManager GameData;
         public ServerDatabase Database;
         public ResourceManager Resources;
+        public ArenaSession ArenaSession;
         public WorldProvider Worlds;
         public ServerPerformance PerformanceStats;
 
@@ -284,6 +285,7 @@ namespace LibreLancer.Server
                 FLLog.Info("Server", "Finished Loading Game Data");
             }
             InitBaselinePrices();
+            this.ArenaSession = new ArenaSession(this);
             Worlds = new WorldProvider(this);
             serverTiming = Stopwatch.StartNew();
             Database = new ServerDatabase(this);

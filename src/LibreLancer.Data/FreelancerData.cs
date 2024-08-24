@@ -26,6 +26,7 @@ using LibreLancer.Data.NewCharDB;
 using LibreLancer.Data.Pilots;
 using LibreLancer.Data.Storyline;
 using LibreLancer.Data.Voices;
+using LibreLancer.Data.Arena;
 
 namespace LibreLancer.Data
 {
@@ -50,6 +51,7 @@ namespace LibreLancer.Data
         public CostumesIni Costumes;
         public UniverseIni Universe;
         public ShiparchIni Ships;
+        public ArenaMapsIni ArenaMaps;
         public AudioIni Audio;
         public GoodsIni Goods;
         public MarketsIni Markets;
@@ -306,6 +308,11 @@ namespace LibreLancer.Data
             {
                 Ships = new ShiparchIni();
                 Ships.ParseAllInis(Freelancer.ShiparchPaths, this);
+            });
+            Run(() =>
+            {
+                ArenaMaps = new ArenaMapsIni();
+                ArenaMaps.ParseAllInis(Freelancer.ArenaMapPaths, this);
             });
             Run(() =>
             {

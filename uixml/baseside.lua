@@ -154,6 +154,20 @@ class baseside : baseside_Designer
 	    this.Elements.chat.Chat = Game.GetChats()
 		this.Elements.nnobj.Visible = false;
     }
+	
+	ArenaObjectiveUpdate(text)
+	{
+		if(text != nil) {
+			PlaySound("ui_new_story_star");
+			local e = this.Elements
+			e.nnobj.FadeIn(1.0);
+			e.nnobj.Strid = 0;
+			e.nnobj.Text = text;
+			Timer(4, () => e.nnobj.FadeOut(1.0));
+		} else {
+			e.nnobj.FadeOut(1.0);
+		}
+	}
 
 	ObjectiveUpdate(nnids)
 	{

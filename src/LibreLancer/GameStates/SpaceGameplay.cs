@@ -1353,6 +1353,11 @@ World Time: {12:F2}
                     nextObjectiveUpdate = 0;
                     UpdateObjectiveObjects();
                 }
+                else if (session.ArenaText != null)
+                {
+                    ui.Event("ArenaObjectiveUpdate", session.ArenaText);
+                    session.ArenaText = null;
+                }
                 ui.RenderWidget(delta);
             }
             else

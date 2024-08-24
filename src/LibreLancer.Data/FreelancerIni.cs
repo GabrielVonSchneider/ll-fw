@@ -28,6 +28,7 @@ namespace LibreLancer.Data
         public List<string> EquipmentPaths { get; private set; }
 		public List<string> LoadoutPaths { get; private set; }
 		public List<string> ShiparchPaths { get; private set; }
+		public List<string> ArenaMapPaths { get; private set; }
         public List<string> GoodsPaths { get; private set; }
         public List<string> MarketsPaths { get; private set; }
         public List<string> SoundPaths { get; private set; }
@@ -108,6 +109,7 @@ namespace LibreLancer.Data
 			EquipmentPaths = new List<string> ();
 			LoadoutPaths = new List<string> ();
 			ShiparchPaths = new List<string> ();
+            ArenaMapPaths = new List<string>();
 			SoundPaths = new List<string>();
 			GraphPaths = new List<string>();
 			EffectPaths = new List<string>();
@@ -246,6 +248,9 @@ namespace LibreLancer.Data
 						case "ships":
 							ShiparchPaths.Add (DataPath + e [0].ToString ());
 							break;
+                        case "arena_maps":
+                            ArenaMapPaths.Add(DataPath + e[0].ToString());
+                            break;
 						case "rich_fonts":
 							RichFontPaths.Add(DataPath + e[0].ToString());
 							break;

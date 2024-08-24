@@ -1,5 +1,8 @@
+using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Numerics;
 using LibreLancer.GameData;
+using LibreLancer.Server;
 using LibreLancer.World;
 
 namespace LibreLancer.Net.Protocol;
@@ -21,6 +24,7 @@ public interface IClientPlayer
     void UpdateAnimations(ObjNetId id, NetCmpAnimation[] animations);
     void UpdateReputations(NetReputation[] reps);
     void UpdateInventory(long credits, ulong shipworth, NetShipLoadout ship);
+    void UpdateArena(string mapName, string[] factions, ArenaState state);
     void UpdateSlotCount(int slot, int count);
     void DeleteSlot(int slot);
     void SpawnSolar(SolarInfo[] solars);

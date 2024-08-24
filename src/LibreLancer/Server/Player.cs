@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using LibreLancer.Client;
 using LibreLancer.Data.Save;
 using LibreLancer.GameData;
+using LibreLancer.GameData.Market;
 using LibreLancer.GameData.World;
 using LibreLancer.Ini;
 using LibreLancer.Missions;
@@ -39,6 +40,7 @@ namespace LibreLancer.Server
         private PreloadObject[] msnPreload;
         private readonly DynamicThn thns = new DynamicThn();
 
+        public string ArenaFaction;
 
         private ConcurrentQueue<Action> saveActions = new ConcurrentQueue<Action>();
         //State
@@ -167,7 +169,7 @@ namespace LibreLancer.Server
 
         void IServerPlayer.StoryNPCSelect(string name, string room, string _base)
         {
-            msnRuntime?.StoryNPCSelect(name,room,_base);
+            msnRuntime?.StoryNPCSelect(name, room, _base);
         }
 
 
@@ -188,9 +190,9 @@ namespace LibreLancer.Server
 
         public ulong GetShipWorth()
         {
-            if(Character.Ship == null)
+            if (Character.Ship == null)
                 return 0;
-            return (ulong) (Game.GameData.GetShipPrice(Character.Ship) * TradeConstants.SHIP_RESALE_MULTIPLIER);
+            return (ulong)(Game.GameData.GetShipPrice(Character.Ship) * TradeConstants.SHIP_RESALE_MULTIPLIER);
         }
 
 
@@ -205,17 +207,21 @@ namespace LibreLancer.Server
             System = Character.System;
             Position = Character.Position;
             Orientation = Character.Orientation;
-            if(Orientation == Quaternion.Zero)
+            if (Orientation == Quaternion.Zero)
                 Orientation = Quaternion.Identity;
-            foreach(var player in Game.AllPlayers.Where(x => x != this))
+            foreach (var player in Game.AllPlayers.Where(x => x != this))
                 player.RpcClient.OnPlayerJoin(ID, Name);
             rpcClient.ListPlayers(Character.Admin);
             if (sg != null) InitStory(sg);
-            if (Base != null) {
+            if (Base != null)
+            {
                 PlayerEnterBase();
-            } else {
+            }
+            else
+            {
                 SpaceInitialSpawn(null);
             }
+            Game.ArenaSession.BeginGame(this);
         }
 
         public void OpenSaveGame(SaveGame sg) => BeginGame(NetCharacter.FromSaveGame(Game, sg), sg);
@@ -227,6 +233,30 @@ namespace LibreLancer.Server
             {
                 c.UpdateCredits(Character.Credits + credits);
             }
+        }
+
+        /// <summary>
+        /// Sets the player's ship to the one from the package and adds all items.
+        /// </summary>
+        public Task ApplyShipPackage(int package)
+        {
+            var resolved = Game.GameData.GetShipPackage((uint)package);
+            if (resolved == null) return Task.FromResult(ShipPurchaseStatus.Fail);
+
+            var newShip = Game.GameData.Ships.Get(resolved.Ship);
+            using (var c = Character.BeginTransaction())
+            {
+                c.UpdateShip(newShip);
+                foreach (var addon in resolved.Addons)
+                {
+                    if (addon!= null)
+                    {
+                        c.AddCargo(addon.Equipment, addon.Equipment.Good == null ? addon.Hardpoint : null, addon.Amount);
+                    }
+                }
+            }
+            UpdateCurrentInventory();
+            return Task.CompletedTask;
         }
 
         void SpaceInitialSpawn(SaveGame sg)
@@ -249,7 +279,7 @@ namespace LibreLancer.Server
         {
             if (ni.Rank[1] != "mission_end")
                 return false;
-            foreach(var x in ni.Base)
+            foreach (var x in ni.Base)
                 if (x.Equals(Base, StringComparison.OrdinalIgnoreCase))
                     return true;
             return false;
@@ -263,13 +293,13 @@ namespace LibreLancer.Server
                 ulong goodsPrice = 0;
                 foreach (var eq in s.Package.Addons)
                 {
-                    goodsPrice += (ulong) ((long)b.GetUnitPrice(eq.Equipment) * eq.Amount);
+                    goodsPrice += (ulong)((long)b.GetUnitPrice(eq.Equipment) * eq.Amount);
                 }
                 yield return new NetSoldShip()
                 {
-                    ShipCRC = (int) FLHash.CreateID(s.Package.Ship),
+                    ShipCRC = (int)FLHash.CreateID(s.Package.Ship),
                     PackageCRC = (int)FLHash.CreateID(s.Package.Nickname),
-                    HullPrice = (ulong) s.Package.BasePrice,
+                    HullPrice = (ulong)s.Package.BasePrice,
                     PackagePrice = (ulong)s.Package.BasePrice + goodsPrice
                 };
             }
@@ -283,8 +313,11 @@ namespace LibreLancer.Server
             {
                 news.Add(new NewsArticle()
                 {
-                    Icon = x.Icon, Category = x.Category, Headline =  x.Headline,
-                    Logo = x.Logo, Text = x.Text
+                    Icon = x.Icon,
+                    Category = x.Category,
+                    Headline = x.Headline,
+                    Logo = x.Logo,
+                    Text = x.Text
                 });
             }
             //load base
@@ -328,7 +361,8 @@ namespace LibreLancer.Server
         {
             var msn = sg.StoryInfo?.Mission ?? "No_Mission";
             var missionNum = sg.StoryInfo?.MissionNum ?? 0;
-            if (Game.GameData.Ini.ContentDll.AlwaysMission13) {
+            if (Game.GameData.Ini.ContentDll.AlwaysMission13)
+            {
                 missionNum = 41;
                 msn = "Mission_13";
             }
@@ -346,8 +380,9 @@ namespace LibreLancer.Server
             lock (thns)
             {
                 thns.Reset();
-                if (sg.MissionState != null) {
-                    foreach(var rtc in sg.MissionState.Rtcs)
+                if (sg.MissionState != null)
+                {
+                    foreach (var rtc in sg.MissionState.Rtcs)
                         thns.AddRTC(rtc.Script);
                     foreach (var amb in sg.MissionState.Ambients)
                     {
@@ -358,7 +393,7 @@ namespace LibreLancer.Server
                 }
             }
             FLLog.Debug("Story", $"{Story.CurrentStory.Nickname}, {Story.MissionNum}");
-            loadTriggers = sg.TriggerSave.Select(x => (uint) x.Trigger).ToArray();
+            loadTriggers = sg.TriggerSave.Select(x => (uint)x.Trigger).ToArray();
             LoadMission();
         }
 
@@ -373,7 +408,8 @@ namespace LibreLancer.Server
             try
             {
                 FLLog.Info("Server", "Account logged in");
-                if (!Game.Database.PlayerLogin(playerGuid, out CharacterList)) {
+                if (!Game.Database.PlayerLogin(playerGuid, out CharacterList))
+                {
                     FLLog.Info("Server", $"Account {playerGuid} is banned, kicking.");
                     Client.Disconnect(DisconnectReason.Banned);
                     return;
@@ -394,7 +430,7 @@ namespace LibreLancer.Server
             }
             catch (Exception ex)
             {
-                FLLog.Error("Player",ex.Message);
+                FLLog.Error("Player", ex.Message);
                 FLLog.Error("Player",
                     ex.StackTrace);
                 Client.Disconnect(DisconnectReason.LoginError);
@@ -440,10 +476,12 @@ namespace LibreLancer.Server
                     Position = tr.Position,
                     Orientation = tr.Orientation
                 };
-                if (solar.Value.TryGetComponent<SRepComponent>(out var rep)){
+                if (solar.Value.TryGetComponent<SRepComponent>(out var rep))
+                {
                     info.Faction = rep.Faction?.Nickname;
                 }
-                if (solar.Value.TryGetComponent<SDockableComponent>(out var dock)){
+                if (solar.Value.TryGetComponent<SDockableComponent>(out var dock))
+                {
                     info.Dock = dock.Action;
                 }
                 si.Add(info);
@@ -490,9 +528,10 @@ namespace LibreLancer.Server
                 return;
             if (Baseside != null && await GeneratedProtocol.HandleIBasesidePlayer(packet, Baseside, Client))
                 return;
-            if(packet is InputUpdatePacket p)
+            if (packet is InputUpdatePacket p)
                 Space?.World.InputsUpdate(this, p);
-            else {
+            else
+            {
                 FLLog.Info("Player", $"Disconnecting player, invalid packet type {packet.GetType()}");
                 Client.Disconnect(DisconnectReason.ConnectionError);
                 Disconnected();
@@ -511,7 +550,7 @@ namespace LibreLancer.Server
 
         public void LevelUp()
         {
-            using var c= Character.BeginTransaction();
+            using var c = Character.BeginTransaction();
             c.UpdateRank(Character.Rank + 1);
         }
 
@@ -531,7 +570,8 @@ namespace LibreLancer.Server
             {
                 var sc = CharacterList[index];
                 FLLog.Info("Server", $"opening id {sc.Id}");
-                if (!Game.CharactersInUse.Add(sc.Id)) {
+                if (!Game.CharactersInUse.Add(sc.Id))
+                {
                     FLLog.Info("Server", $"Character `{sc.Name}` is already in use");
                     return Task.FromResult(false);
                 }
@@ -560,7 +600,8 @@ namespace LibreLancer.Server
             {
                 FLLog.Info("Player", $"New char: {name}");
                 SelectableCharacter sel = null;
-                long id = Game.Database.AddCharacter(playerGuid, (db) => {
+                long id = Game.Database.AddCharacter(playerGuid, (db) =>
+                {
                     NetCharacter.FromSaveGame(Game, Game.NewCharacter(name, index), db);
                 });
                 sel = NetCharacter.FromDb(id, Game).ToSelectable();
@@ -570,7 +611,9 @@ namespace LibreLancer.Server
                     Character = sel
                 }, PacketDeliveryMethod.ReliableOrdered);
                 return Task.FromResult(true);
-            } else {
+            }
+            else
+            {
                 FLLog.Info("Player", $"Char name in use: {name}");
                 return Task.FromResult(false);
             }
@@ -623,9 +666,12 @@ namespace LibreLancer.Server
             if (Dead)
             {
                 Dead = false;
-                if (Base != null) {
+                if (Base != null)
+                {
                     PlayerEnterBase();
-                } else {
+                }
+                else
+                {
                     SpaceInitialSpawn(null);
                 }
             }
@@ -696,7 +742,7 @@ namespace LibreLancer.Server
                 c.UpdatePosition(Base, System, Position, Orientation);
                 Space?.Leave(false);
                 Space = null;
-                foreach(var player in Game.AllPlayers.Where(x => x != this))
+                foreach (var player in Game.AllPlayers.Where(x => x != this))
                     player.RpcClient.OnPlayerLeave(ID, Name);
                 Game.CharactersInUse.Remove(Character.ID);
                 Character = null;
@@ -717,7 +763,7 @@ namespace LibreLancer.Server
         {
             rpcClient.StartJumpTunnel();
             FLLog.Debug("Player", $"Jumping to {system} - {target}");
-            if(Space != null) Space.Leave(false);
+            if (Space != null) Space.Leave(false);
             Space = null;
 
             var sys = Game.GameData.Systems.Get(system);
@@ -732,10 +778,12 @@ namespace LibreLancer.Server
                 Base = null;
                 Position = Vector3.Zero;
                 Orientation = Quaternion.Identity;
-                if (obj == null) {
+                if (obj == null)
+                {
                     FLLog.Error("Server", $"Can't find target {target} to spawn player in {system}");
                 }
-                else {
+                else
+                {
                     Position = obj.Position;
                     Orientation = obj.Rotation;
                     Position = Vector3.Transform(new Vector3(0, 0, 500), Orientation) + obj.Position; //TODO: This is bad
@@ -755,7 +803,8 @@ namespace LibreLancer.Server
 
         void IServerPlayer.Launch()
         {
-            if (Character.Ship == null) {
+            if (Character.Ship == null)
+            {
                 FLLog.Error("Server", $"{Name} cannot launch without a ship");
                 return;
             }

@@ -9,6 +9,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using LibreLancer.GameData.World;
 using LibreLancer.Net.Protocol.RpcPackets;
+using LibreLancer.Server;
 using LibreLancer.World;
 using LibreLancer.World.Components;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -235,7 +236,6 @@ namespace LibreLancer.Net.Protocol
             Loadout.Put(message);
         }
     }
-
 
     public class NetShipCargo
     {

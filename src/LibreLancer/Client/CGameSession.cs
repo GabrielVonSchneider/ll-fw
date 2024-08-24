@@ -61,6 +61,7 @@ namespace LibreLancer.Client
         public bool Admin = false;
         public NewsArticle[] News = new NewsArticle[0];
         public ChatSource Chats = new ChatSource();
+        public string ArenaText;
         private IPacketConnection connection;
         private IServerPlayer rpcServer;
         private ISpacePlayer spaceRpc;
@@ -726,6 +727,11 @@ namespace LibreLancer.Client
                 if(gp == null && OnUpdatePlayerShip != null)
                     uiActions.Enqueue(OnUpdatePlayerShip);
             }
+        }
+
+        void IClientPlayer.UpdateArena(string mapName, string[] factions, ArenaState state)
+        {
+            ArenaText = state.ToString();
         }
 
         public void UpdateSlotCount(int slot, int count)

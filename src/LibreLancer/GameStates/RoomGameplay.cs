@@ -881,10 +881,18 @@ namespace LibreLancer
                 Game.Debug.ObjectsWindow(scene.World.Objects);
             });
 
-            if (ui.Visible && !ui.HasModal && nextObjectiveUpdate != 0 && waitObjectiveFrames <= 0)
+            if (ui.Visible && !ui.HasModal)
             {
-                ui.Event("ObjectiveUpdate", nextObjectiveUpdate);
-                nextObjectiveUpdate = 0;
+                if (nextObjectiveUpdate != 0 && waitObjectiveFrames <= 0)
+                {
+                    ui.Event("ObjectiveUpdate", nextObjectiveUpdate);
+                    nextObjectiveUpdate = 0;
+                }
+                else if (session.ArenaText != null)
+                {
+                    ui.Event("ArenaUpdate", session.ArenaText);
+                    session.ArenaText = null;
+                }
             }
             if (ui.Visible || ui.HasModal || Game.Debug.Enabled)
             {
