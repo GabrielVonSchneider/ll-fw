@@ -371,6 +371,11 @@ namespace LibreLancer
             return pkg;
         }
 
+        public ShipPackage GetShipPackage(string nickname)
+        {
+            return shipPackages.TryGetValue(nickname, out var pkg) ? pkg : null;
+        }
+
         void InitFactions()
         {
             FLLog.Info("Factions", $"Initing {fldata.InitialWorld.Groups.Count} factions");

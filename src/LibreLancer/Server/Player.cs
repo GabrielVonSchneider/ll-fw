@@ -243,15 +243,16 @@ namespace LibreLancer.Server
         /// <summary>
         /// Sets the player's ship to the one from the package and adds all items.
         /// </summary>
-        public Task ApplyShipPackage(int package)
+        public void ApplyShipPackage(string package)
         {
-            var resolved = Game.GameData.GetShipPackage((uint)package);
-            if (resolved == null) return Task.FromResult(ShipPurchaseStatus.Fail);
+            var resolved = Game.GameData.GetShipPackage(package);
+            if (resolved == null) return;
 
             var newShip = Game.GameData.Ships.Get(resolved.Ship);
             using (var c = Character.BeginTransaction())
             {
                 c.UpdateShip(newShip);
+                c.ClearAllCargo();
                 foreach (var addon in resolved.Addons)
                 {
                     if (addon!= null)
@@ -261,7 +262,6 @@ namespace LibreLancer.Server
                 }
             }
             UpdateCurrentInventory();
-            return Task.CompletedTask;
         }
 
         void SpaceInitialSpawn(SaveGame sg)

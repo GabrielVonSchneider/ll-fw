@@ -53,7 +53,11 @@ namespace LibreLancer.Server
 
             player.ArenaFaction = index;
 
-            if (CurrentMap.Factions[index].Base is string startBase)
+            if (CurrentMap.Factions[index].StarterShip is string starterShip && starterShip.Length > 0)
+            {
+                player.ApplyShipPackage(starterShip);
+            }
+            if (CurrentMap.Factions[index].Base is string startBase && startBase.Length > 0)
             {
                 player.ForceLand(startBase);
             }
