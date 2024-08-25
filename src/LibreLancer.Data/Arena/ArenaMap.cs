@@ -5,7 +5,8 @@ using System.Collections.Generic;
 namespace LibreLancer.Data.Arena
 {
     [InheritSection]
-    public class ArenaMap
+    [SelfSection("map")]
+    public class ArenaMap : IniFile
     {
         [Entry("nickname")]
         public string Nickname;
@@ -14,10 +15,18 @@ namespace LibreLancer.Data.Arena
         [Entry("mode")]
         public string Mode;
 
-        [Entry("faction")]
+        [Entry("file")]
+        public string File;
+
+        [Section("faction")]
         public List<ArenaFaction> Factions = new List<ArenaFaction>();
 
-        [Entry("capture_point")]
+        [Section("capture_point")]
         public List<ArenaCapturePoint> CapturePoints = new List<ArenaCapturePoint>();
+
+        public void ParseAndFill(string path, FreelancerData fldata)
+		{
+            ParseAndFill(path + File, fldata.VFS);
+        }
     }
 }

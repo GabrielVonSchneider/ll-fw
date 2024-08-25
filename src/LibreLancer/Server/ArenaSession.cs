@@ -1,25 +1,11 @@
 ﻿using LibreLancer.Data.Arena;
-using LibreLancer.Net.Protocol;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LibreLancer.Server
 {
-    public enum ArenaState
-    {
-        TeamPick,
-        Setup,
-        Gameplay,
-    }
-
     public class ArenaSession
     {
         public GameServer Server;
-
-        ArenaState State;
         ArenaMap CurrentMap;
         Random random = new Random();
 
@@ -36,7 +22,7 @@ namespace LibreLancer.Server
 
             foreach (var player in Server.AllPlayers)
             {
-                player.ArenaFaction = null;
+                player.ArenaFaction = -1;
                 SendArenaInfo(player);
             }
         }
@@ -49,20 +35,30 @@ namespace LibreLancer.Server
         private void SendArenaInfo(Player p)
         {
             p.RpcClient.UpdateArena(
-                CurrentMap.Title,
-                CurrentMap.Factions
-                    .Select(f => this.Server.GameData.GetString(this.Server.GameData.Factions.Get(f.Nickname).IdsName))
-                    .ToArray(),
-                this.State
+                CurrentMap.Nickname,
+                p.ArenaFaction
             );
         }
 
-        void BeamPlayersToBases()
+        public void PickArenaFaction(Player player, int index)
         {
-            foreach (var player in Server.AllPlayers)
+            if (CurrentMap == null)
             {
-                var faction = this.CurrentMap.Factions.FirstOrDefault(f => f.Nickname == player.ArenaFaction);
+                return;
             }
+            if (index < 0 || index >= CurrentMap.Factions.Count)
+            {
+                return;
+            }
+
+            player.ArenaFaction = index;
+
+            if (CurrentMap.Factions[index].Base is string startBase)
+            {
+                player.ForceLand(startBase);
+            }
+
+            SendArenaInfo(player);
         }
     }
 }

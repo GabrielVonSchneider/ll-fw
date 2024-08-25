@@ -125,6 +125,39 @@
       <A>1</A>
     </Color>
   </Color>
+  <Color>
+    <Name>attention_hover</Name>
+    <Color>
+      <R>1</R>
+      <G>0</G>
+      <B>0</B>
+      <A>1</A>
+    </Color>
+    <Animation>
+      <Color1>
+        <R>1</R>
+        <G>0</G>
+        <B>0</B>
+        <A>1</A>
+      </Color1>
+      <Color2>
+        <R>0.8235294</R>
+        <G>0.627451</G>
+        <B>0.627451</B>
+        <A>1</A>
+      </Color2>
+      <Speed>1</Speed>
+    </Animation>
+  </Color>
+  <Color>
+    <Name>attention</Name>
+    <Color>
+      <R>1</R>
+      <G>0</G>
+      <B>0</B>
+      <A>1</A>
+    </Color>
+  </Color>
   <Model name="fullbutton_animating" path="INTERFACE/NEURONET/INVENTORY/front_button.cmp" x="0" y="0" xscale="7.8" yscale="31" xz-plane="false" />
   <Model name="hullgauge" path="INTERFACE/HUD/hud_hullgauge.3db" x="0" y="0" xscale="11.7" yscale="249" xz-plane="false" />
   <Model name="shieldgauge" path="INTERFACE/HUD/hud_shieldgauge.3db" x="0" y="0" xscale="11.7" yscale="249" xz-plane="false" />

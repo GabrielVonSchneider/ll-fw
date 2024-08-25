@@ -21,6 +21,7 @@ namespace LibreLancer.Data
 		public string DataPath { get; private set; }
 		public List<string> SolarPaths { get; private set; }
 		public string UniversePath { get; private set; }
+        public string ArenaMapsPath { get; private set; }
 		public string HudPath { get; private set; }
         public string XInterfacePath { get; private set; }
         public string DataVersion { get; private set; }
@@ -28,7 +29,6 @@ namespace LibreLancer.Data
         public List<string> EquipmentPaths { get; private set; }
 		public List<string> LoadoutPaths { get; private set; }
 		public List<string> ShiparchPaths { get; private set; }
-		public List<string> ArenaMapPaths { get; private set; }
         public List<string> GoodsPaths { get; private set; }
         public List<string> MarketsPaths { get; private set; }
         public List<string> SoundPaths { get; private set; }
@@ -109,7 +109,6 @@ namespace LibreLancer.Data
 			EquipmentPaths = new List<string> ();
 			LoadoutPaths = new List<string> ();
 			ShiparchPaths = new List<string> ();
-            ArenaMapPaths = new List<string>();
 			SoundPaths = new List<string>();
 			GraphPaths = new List<string>();
 			EffectPaths = new List<string>();
@@ -227,6 +226,9 @@ namespace LibreLancer.Data
 						case "universe":
 							UniversePath = DataPath + e [0].ToString ();
 							break;
+                        case "arena_maps":
+							ArenaMapsPath = DataPath + e [0].ToString();
+                            break;
 						case "equipment":
 							EquipmentPaths.Add(DataPath + e [0].ToString ());
 							break;
@@ -248,9 +250,6 @@ namespace LibreLancer.Data
 						case "ships":
 							ShiparchPaths.Add (DataPath + e [0].ToString ());
 							break;
-                        case "arena_maps":
-                            ArenaMapPaths.Add(DataPath + e[0].ToString());
-                            break;
 						case "rich_fonts":
 							RichFontPaths.Add(DataPath + e[0].ToString());
 							break;

@@ -40,7 +40,7 @@ namespace LibreLancer.Server
         private PreloadObject[] msnPreload;
         private readonly DynamicThn thns = new DynamicThn();
 
-        public string ArenaFaction;
+        public int ArenaFaction = -1;
 
         private ConcurrentQueue<Action> saveActions = new ConcurrentQueue<Action>();
         //State
@@ -155,6 +155,11 @@ namespace LibreLancer.Server
                 thns.RemoveAmbient(script);
                 rpcClient.UpdateThns(thns.Pack());
             }
+        }
+
+        void IServerPlayer.PickArenaFaction(int index)
+        {
+            this.Game.ArenaSession.PickArenaFaction(this, index);
         }
 
         void IServerPlayer.RTCComplete(string rtc)

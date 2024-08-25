@@ -312,7 +312,7 @@ namespace LibreLancer.Data
             Run(() =>
             {
                 ArenaMaps = new ArenaMapsIni();
-                ArenaMaps.ParseAllInis(Freelancer.ArenaMapPaths, this);
+                ArenaMaps.ParseAndFill(Freelancer.ArenaMapsPath, this);
             });
             Run(() =>
             {

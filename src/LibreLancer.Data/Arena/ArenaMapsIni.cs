@@ -11,9 +11,14 @@ namespace LibreLancer.Data.Arena
     {
         [Section("map")]
         public List<ArenaMap> Maps = new List<ArenaMap>();
-        public void ParseAllInis(IEnumerable<string> paths, FreelancerData fldata)
+
+        public void ParseAndFill(string path, FreelancerData fldata)
 		{
-            ParseAndFill(paths, fldata.VFS);
+            ParseAndFill(path, fldata.VFS);
+            foreach (var map in Maps)
+            {
+                map.ParseAndFill(fldata.VFS.RemovePathComponent(path), fldata);
+            }
         }
     }
 }

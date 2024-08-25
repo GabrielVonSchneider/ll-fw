@@ -447,11 +447,13 @@ World Time: {12:F2}
         {
             SpaceGameplay g;
             public CallbackWidget IndicatorLayer;
+            public ArenaClient Arena;
 
             public LuaAPI(SpaceGameplay gameplay)
             {
                 this.g = gameplay;
                 IndicatorLayer = new CallbackWidget();
+                Arena = new ArenaClient(gameplay.session);
             }
 
             private Container lastContainer;
@@ -1353,10 +1355,10 @@ World Time: {12:F2}
                     nextObjectiveUpdate = 0;
                     UpdateObjectiveObjects();
                 }
-                else if (session.ArenaText != null)
+                else if (session.DoArenaUpdate)
                 {
-                    ui.Event("ArenaObjectiveUpdate", session.ArenaText);
-                    session.ArenaText = null;
+                    ui.Event("ArenaUpdate");
+                    session.DoArenaUpdate = false;
                 }
                 ui.RenderWidget(delta);
             }

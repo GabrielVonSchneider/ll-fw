@@ -13,6 +13,7 @@ public interface IServerPlayer
     Task<bool> SelectCharacter(int index);
     Task<bool> DeleteCharacter(int index);
     Task<bool> CreateNewCharacter(string name, int index);
+    void PickArenaFaction(int faction);
     void ClosedPopup(string id);
     void StoryNPCSelect(string name, string room, string _base);
     void RTCMissionAccepted();

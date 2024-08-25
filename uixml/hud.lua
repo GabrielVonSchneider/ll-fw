@@ -167,12 +167,14 @@ class hud : hud_Designer
 		this.PlayerStatus = new playerstatus()
 		this.ChatHistory = new chathistory()
 	    this.Map.InitMap()
+		this.PickFaction = new pickfaction()
 		
 		var windows = {
 			{ e.nn_map, this.Map },
 		    { this.Elements.nn_info, this.InfoWindow },
 			{ this.Elements.nn_playerstatus, this.PlayerStatus },
-			{ this.Elements.nn_chat, this.ChatHistory }
+			{ this.Elements.nn_chat, this.ChatHistory },
+			{ this.Elements.nn_request, this.PickFaction }
 		};
 		this.WindowManager = new childwindowmanager(this.Widget, windows)
 
@@ -222,9 +224,12 @@ class hud : hud_Designer
 		this.ContactList.SetFilter(filter)
 	}
 	
-	ArenaObjectiveUpdate(text)
+	ArenaUpdate()
 	{
-		if(text != nil) {
+		text = Game.Arena.GetArenaText();
+		attention_required = Game.Arena.GetAttentionRequired();
+		
+		if (text != nil) {
 			PlaySound("ui_new_story_star");
 			local e = this.Elements
 			e.nnobj.FadeIn(1.0);
@@ -234,6 +239,13 @@ class hud : hud_Designer
 		} else {
 			e.nnobj.FadeOut(1.0);
 		}
+		
+		if (attention_required) {
+			this.Elements.nn_request.Style = "nn_request_attention";
+		} else {
+			this.Elements.nn_request.Style = "nn_request";
+		}
+		this.Elements.nn_request.ReloadStyle();	
 	}
     
 	ObjectiveUpdate(nnids)

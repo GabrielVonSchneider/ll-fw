@@ -155,8 +155,11 @@ class baseside : baseside_Designer
 		this.Elements.nnobj.Visible = false;
     }
 	
-	ArenaObjectiveUpdate(text)
+	ArenaUpdate()
 	{
+		text = Game.Arena.GetArenaText();
+		attention_required = Game.Arena.GetAttentionRequired();
+		
 		if(text != nil) {
 			PlaySound("ui_new_story_star");
 			local e = this.Elements
@@ -167,6 +170,13 @@ class baseside : baseside_Designer
 		} else {
 			e.nnobj.FadeOut(1.0);
 		}
+		
+		if (attention_required) {
+			this.Elements.nn_request.Style = "nn_request_attention";
+		} else {
+			this.Elements.nn_request.Style = "nn_request";
+		}
+		this.Elements.nn_request.ReloadStyle();	
 	}
 
 	ObjectiveUpdate(nnids)

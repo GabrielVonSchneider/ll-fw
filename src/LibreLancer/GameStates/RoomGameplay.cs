@@ -27,6 +27,7 @@ using LibreLancer.Thn;
 using LibreLancer.World;
 using LibreLancer.World.Components;
 using SharpDX.WIC;
+using LibreLancer.Server;
 
 namespace LibreLancer
 {
@@ -184,6 +185,7 @@ namespace LibreLancer
                 articles = g.session.News;
                 Trader = new Trader(g.session);
                 ShipDealer = new ShipDealer(g.session);
+                Arena = new ArenaClient(g.session);
             }
 
             public bool HasShip() => g.session.PlayerShip != null;
@@ -267,6 +269,7 @@ namespace LibreLancer
 
             public Trader Trader;
             public ShipDealer ShipDealer;
+            public ArenaClient Arena;
 
             public ChatSource GetChats() => g.session.Chats;
 
@@ -888,10 +891,10 @@ namespace LibreLancer
                     ui.Event("ObjectiveUpdate", nextObjectiveUpdate);
                     nextObjectiveUpdate = 0;
                 }
-                else if (session.ArenaText != null)
+                else if (session.DoArenaUpdate)
                 {
-                    ui.Event("ArenaUpdate", session.ArenaText);
-                    session.ArenaText = null;
+                    ui.Event("ArenaUpdate");
+                    session.DoArenaUpdate = false;
                 }
             }
             if (ui.Visible || ui.HasModal || Game.Debug.Enabled)
