@@ -28,7 +28,7 @@ public class BasesidePlayer : IBasesidePlayer
         {
             return Player.Character.Items.Any(i => i.Equipment.GetType() == eq.GetType() && i.Hardpoint != null)
                 ? null
-                : "1";
+                : "internal";
         }
 
         if (string.IsNullOrWhiteSpace(eq.HpType)) return null;

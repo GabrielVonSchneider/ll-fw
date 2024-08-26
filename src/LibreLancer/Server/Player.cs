@@ -255,9 +255,9 @@ namespace LibreLancer.Server
                 c.ClearAllCargo();
                 foreach (var addon in resolved.Addons)
                 {
-                    if (addon!= null)
+                    if (addon != null)
                     {
-                        c.AddCargo(addon.Equipment, addon.Equipment.Good == null ? addon.Hardpoint : null, addon.Amount);
+                        c.AddCargo(addon.Equipment, addon.Hardpoint, addon.Amount);
                     }
                 }
             }
