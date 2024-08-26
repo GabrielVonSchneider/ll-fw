@@ -82,6 +82,10 @@ namespace LibreLancer.Ini
                         else
                             entry.Add(new LancerStringValue(part) { Entry = entry, Line = line });
                     }
+                    else
+                    {
+                        entry.Add(new LancerStringValue(part) { Entry = entry, Line = line });
+                    }
                 }
             }
             section.Add(entry);
