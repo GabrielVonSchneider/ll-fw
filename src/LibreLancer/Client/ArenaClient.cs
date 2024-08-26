@@ -22,6 +22,11 @@ namespace LibreLancer.Client
 
         public PickableFaction[] GetAvailableFactions()
         {
+            if (string.IsNullOrEmpty(this.session.ArenaMap))
+            {
+                return Array.Empty<PickableFaction>();
+            }
+
             var map = this.session.Game.GameData.Ini.ArenaMaps.Maps.First(m => m.Nickname == this.session.ArenaMap);
             return map.Factions.Select(f =>
             {

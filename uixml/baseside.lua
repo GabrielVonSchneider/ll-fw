@@ -130,11 +130,13 @@ class baseside : baseside_Designer
 	    this.Map.InitMap()
 	    this.CommodityTrader = new commodity()
 		this.ChatHistory = new chathistory()
+		this.PickFaction = new pickfaction()
 	    local windows = {
 		    { this.Elements.nn_map, this.Map },
 		    { this.Elements.nn_info, this.InfoWindow },
 			{ this.Elements.nn_playerstatus, this.PlayerStatus },
-			{ this.Elements.nn_chat, this.ChatHistory }
+			{ this.Elements.nn_chat, this.ChatHistory },
+			{ this.Elements.nn_request, this.PickFaction }
 	    }
 	    if (has_news) {
 		    this.News = new news();
