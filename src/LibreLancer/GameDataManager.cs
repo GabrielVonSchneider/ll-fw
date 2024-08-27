@@ -25,6 +25,8 @@ using Archetype = LibreLancer.GameData.Archetype;
 using DockSphere = LibreLancer.GameData.World.DockSphere;
 using FileSystem = LibreLancer.Data.IO.FileSystem;
 using Spine = LibreLancer.GameData.World.Spine;
+using System.Security.Cryptography.X509Certificates;
+using LibreLancer.Data.Arena;
 
 namespace LibreLancer
 {
@@ -494,6 +496,7 @@ namespace LibreLancer
             var archetypesTask = tasks.Begin(InitArchetypes, loadoutsTask);
             tasks.Begin(InitMarkets, baseTask, goodsTask, archetypesTask);
             tasks.Begin(InitBodyParts);
+            tasks.Begin(InitArenaMaps);
             tasks.Begin(() => InitSystems(tasks),
                 baseTask,
                 archetypesTask,
@@ -932,6 +935,8 @@ namespace LibreLancer
             return q;
         }
 
+        public Dictionary<string, ArenaMap> ArenaMaps = new Dictionary<string, ArenaMap>(StringComparer.OrdinalIgnoreCase);
+
         public GameItemCollection<StarSystem> Systems = new GameItemCollection<StarSystem>();
         public GameItemCollection<Base> Bases = new GameItemCollection<Base>();
 
@@ -1191,6 +1196,15 @@ namespace LibreLancer
                 Systems.Add(sys);
             }
         }
+
+        public void InitArenaMaps()
+        {
+            foreach (var map in Ini.ArenaMaps.Maps)
+            {
+                ArenaMaps.Add(map.Nickname, map);
+            }
+        }
+
         public IEnumerator<object> LoadSystemResources(StarSystem sys)
         {
             if (fldata.Stars != null)

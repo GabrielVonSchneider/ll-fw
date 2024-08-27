@@ -9,5 +9,7 @@ namespace LibreLancer.Data.Arena
     {
         [Entry("object")]
         public string Object;
+        [Entry("system")]
+        public string System;
     }
 }

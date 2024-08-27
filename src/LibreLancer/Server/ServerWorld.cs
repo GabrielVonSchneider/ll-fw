@@ -27,6 +27,7 @@ namespace LibreLancer.Server
         public GameServer Server;
         public StarSystem System;
         public NPCManager NPCs;
+        public bool ContainsCapturePoint;
         object _idLock = new object();
 
         public NetIDGenerator IdGenerator = new NetIDGenerator();
@@ -505,7 +506,7 @@ namespace LibreLancer.Server
             //Despawn after 2 seconds of nothing
             if (PlayerCount == 0) {
                 noPlayersTime += delta;
-                return (noPlayersTime < maxNoPlayers);
+                return (ContainsCapturePoint || noPlayersTime < maxNoPlayers);
             }
             else
             {

@@ -733,9 +733,14 @@ namespace LibreLancer.Client
             }
         }
 
-        void IClientPlayer.UpdateArena(string mapNick, int faction)
+        void IClientPlayer.UpdateArenaMap(string mapNick)
         {
             this.ArenaMap = mapNick;
+            this.DoArenaUpdate = true;
+        }
+
+        void IClientPlayer.UpdateArenaFaction(int faction)
+        {
             this.ArenaFaction = faction;
             this.DoArenaUpdate = true;
         }

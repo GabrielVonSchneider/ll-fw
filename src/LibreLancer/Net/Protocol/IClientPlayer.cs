@@ -24,7 +24,8 @@ public interface IClientPlayer
     void UpdateAnimations(ObjNetId id, NetCmpAnimation[] animations);
     void UpdateReputations(NetReputation[] reps);
     void UpdateInventory(long credits, ulong shipworth, NetShipLoadout ship);
-    void UpdateArena(string mapName, int playerFaction);
+    void UpdateArenaMap(string mapName);
+    void UpdateArenaFaction(int playerFaction);
     void UpdateSlotCount(int slot, int count);
     void DeleteSlot(int slot);
     void SpawnSolar(SolarInfo[] solars);

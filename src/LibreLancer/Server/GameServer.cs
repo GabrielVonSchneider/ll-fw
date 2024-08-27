@@ -248,6 +248,8 @@ namespace LibreLancer.Server
                     toSpinDown.Add(w.Key);
             }
 
+            this.ArenaSession.Update(time);
+
             DebugInfo = debugInfoForFrame;
             Listener?.Server?.TriggerUpdate(); //Send packets asap
             //Remove
@@ -285,8 +287,8 @@ namespace LibreLancer.Server
                 FLLog.Info("Server", "Finished Loading Game Data");
             }
             InitBaselinePrices();
-            this.ArenaSession = new ArenaSession(this);
             Worlds = new WorldProvider(this);
+            this.ArenaSession = new ArenaSession(this);
             serverTiming = Stopwatch.StartNew();
             Database = new ServerDatabase(this);
             Listener?.Start();

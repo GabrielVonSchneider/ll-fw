@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
+using LibreLancer.Client;
 using LibreLancer.Client.Components;
 using LibreLancer.GameData;
 using LibreLancer.GameData.World;

@@ -174,6 +174,7 @@ World Time: {12:F2}
             world = new GameWorld(sysrender, Game.ResourceManager, () => session.WorldTime);
             Game.GameData.PreloadObjects(session.Preloads);
             world.LoadSystem(sys, Game.ResourceManager, false);
+            UpdateArenaObjects();
             session.WorldReady();
             player.World = world;
             world.AddObject(player);
@@ -1249,6 +1250,28 @@ World Time: {12:F2}
         }
 
         private GameObject missionWaypoint;
+
+        void UpdateArenaObjects()
+        {
+            if (!Game.GameData.ArenaMaps.TryGetValue(session.ArenaMap ?? "", out var arenaMap))
+            {
+                return;
+            }
+
+            foreach (var capturePoint in arenaMap.CapturePoints)
+            {
+                if (world.GetObject(capturePoint.Object) is GameObject obj)
+                {
+                    var waypointArch = Game.GameData.GetSolarArchetype("waypoint");
+                    missionWaypoint = new GameObject(waypointArch, Game.ResourceManager);
+                    missionWaypoint.Name = new ObjectName(1091); //Mission Waypoint
+                    missionWaypoint.SetLocalTransform(obj.WorldTransform);
+                    missionWaypoint.World = world;
+                    world.AddObject(missionWaypoint);
+                    missionWaypoint.Register(world.Physics);
+                }
+            }
+        }
 
         void UpdateObjectiveObjects()
         {
