@@ -65,6 +65,7 @@ namespace LibreLancer.Client
         public string ArenaMap;
         public int ArenaFaction = -1;
         public bool DoArenaUpdate;
+        public NetCapturePoint[] CapturePoints = Array.Empty<NetCapturePoint>();
 
         private IPacketConnection connection;
         private IServerPlayer rpcServer;
@@ -743,6 +744,11 @@ namespace LibreLancer.Client
         {
             this.ArenaFaction = faction;
             this.DoArenaUpdate = true;
+        }
+
+        void IClientPlayer.UpdateCapturePoints(NetCapturePoint[] points)
+        {
+            this.CapturePoints = points;
         }
 
         public void UpdateSlotCount(int slot, int count)

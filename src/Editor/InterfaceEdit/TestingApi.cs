@@ -2,14 +2,14 @@
 // This file is subject to the terms and conditions defined in
 // LICENSE, which is part of this source code package
 
-using System;
 using LibreLancer;
+using LibreLancer.Client;
+using LibreLancer.Infocards;
 using LibreLancer.Interface;
+using LibreLancer.Net.Protocol;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
-using LibreLancer.Infocards;
-using LibreLancer.Net;
-using LibreLancer.Net.Protocol;
 using WattleScript.Interpreter;
 
 namespace InterfaceEdit
@@ -47,7 +47,7 @@ namespace InterfaceEdit
         public string GetContentString(int row, string column)
         {
             if (column == "name")
-                return ((char) ('a' + row)).ToString();
+                return ((char)('a' + row)).ToString();
             else if (column == "date")
                 return FlTime(new DateTime(2019, 7, 3 + row, 12, 05, 10 + row));
             else
@@ -57,7 +57,7 @@ namespace InterfaceEdit
         public string CurrentDescription()
         {
             if (Selected < 0) return "";
-            return ((char) ('a' + Selected)).ToString();
+            return ((char)('a' + Selected)).ToString();
         }
 
         public bool ValidSelection()
@@ -169,6 +169,67 @@ namespace InterfaceEdit
         }
     }
 
+    [WattleScriptUserData]
+    public class FakeArenaClient
+    {
+        public PickableFaction[] GetAvailableFactions()
+        {
+            return new PickableFaction[]
+            {
+                new PickableFaction
+                {
+                    IdsName = 196901, //imperial navy
+                    Color = "#009000FF",
+                },
+                new PickableFaction
+                {
+                    IdsName = 196907, //new republic navy
+                    Color = "#900000FF",
+                },
+            };
+        }
+
+        public bool GetAttentionRequired() => true;
+        public string GetArenaText()
+        {
+            return "Pick your faction!";
+        }
+        public void PickFaction(int i) { }
+        public NetCapturePoint[] GetCapturePoints()
+        {
+            return
+            [
+                new NetCapturePoint
+                {
+                    FactionShips = [1, 0],
+                    FactionWithProgress = -1,
+                    OwningFaction = 0,
+                    Progress = 0,
+                },
+                new NetCapturePoint
+                {
+                    FactionShips = [1, 0],
+                    FactionWithProgress = 0,
+                    OwningFaction = -1,
+                    Progress = 0.7F,
+                }
+            ];
+        }
+
+        public string GetFactionColor(int faction)
+        {
+            if (faction == 0)
+            {
+                return "#009000FF";
+            }
+            if (faction == 1)
+            {
+                return "#900000FF";
+            }
+
+            return "#909090FF";
+        }
+    }
 
     public class TestingApi
     {
@@ -181,6 +242,7 @@ namespace InterfaceEdit
             LuaContext.RegisterType<FakeShipDealer>();
             LuaContext.RegisterType<FakeKeyMap>();
             LuaContext.RegisterType<FakeContactList>();
+            LuaContext.RegisterType<FakeArenaClient>();
         }
 
         static readonly NavbarButtonInfo cityscape = new NavbarButtonInfo("IDS_HOTSPOT_EXIT", "Cityscape");
@@ -523,6 +585,7 @@ namespace InterfaceEdit
 
         public TraderFake Trader = new TraderFake();
         public FakeShipDealer ShipDealer = new FakeShipDealer();
+        public FakeArenaClient Arena = new FakeArenaClient();
 
         public string SelectionName() => "Selected Object";
         public bool SelectionVisible() => true;
@@ -537,7 +600,7 @@ namespace InterfaceEdit
 
         public string SelectionReputation() => "friendly";
 
-        public Vector2 SelectionPosition() => OverridePosition ?? new Vector2(300,300);
+        public Vector2 SelectionPosition() => OverridePosition ?? new Vector2(300, 300);
 
         public int RepairKitCount() => 10;
 
@@ -603,7 +666,7 @@ namespace InterfaceEdit
             win.UiEvent("OpenNewCharacter");
         }
 
-        public void LoadCharacter(){}
+        public void LoadCharacter() { }
         public void DeleteCharacter() { }
 
         public void NewCharacter(string name, int index) { }

@@ -179,7 +179,67 @@ class hud : hud_Designer
 		this.WindowManager = new childwindowmanager(this.Widget, windows)
 
 		this.SetupIndicators()
+		this.SetupCapturePoints()
     }
+	
+	SetupCapturePoints()
+	{
+		this.Elements.capturepoints.Children.Clear()
+		for (index, point in ipairs(Game.Arena.GetCapturePoints()))
+		{
+			local capture_progress = NewObject("Panel")
+			capture_progress.Height = 10
+			capture_progress.Width = 100
+			capture_progress.X = 30
+			capture_progress.Y = 10 + (index - 1) * 15
+			
+			local gauge = NewObject("Gauge")
+			gauge.PercentFilled = point.Progress
+			gauge.Height = capture_progress.Height - 1
+			gauge.Width = capture_progress.Width - 1
+			gauge.X = 1
+			gauge.Y = 1
+			
+			local gauge_model = NewObject("DisplayModel")
+			if (point.FactionWithProgress >= 0) {
+				gauge_model.Tint = GetColor(Game.Arena.GetFactionColor(point.FactionWithProgress))
+			} else {
+				gauge_model.Tint = GetColor("wireframe")
+			}
+			gauge_model.Model = GetModel("powergauge")
+			gauge.Fill = NewObject("UiRenderable")
+			gauge.Fill.Elements.Add(gauge_model)
+			capture_progress.Children.Add(gauge)
+			
+			local border_panel = NewObject("Panel")
+			border_panel.Height = capture_progress.Height
+			border_panel.Width = capture_progress.Width
+			local border = NewObject("DisplayWireBorder")
+			border.Width = 1
+			border.Color = GetColor("wireframe")
+			border_panel.Background = NewObject("UiRenderable")
+			border_panel.Background.Elements.Add(border)
+			capture_progress.Children.Add(border_panel)
+			
+			this.Elements.capturepoints.Children.Add(capture_progress)
+			
+			local panel = NewObject("Panel")
+			panel.Height = 10
+			panel.Width = 10
+			panel.Y = 10 + (index - 1) * 15
+			panel.X = 10
+			local point_model = NewObject('DisplayModel')
+			if (point.OwningFaction >= 0) {
+				point_model.Tint = GetColor(Game.Arena.GetFactionColor(point.OwningFaction))
+			} else {
+				point_model.Tint = GetColor("wireframe")
+			}
+			point_model.Model = GetModel("nav_universebutton")
+			panel.Background = NewObject("UiRenderable")
+			panel.Background.Elements.add(point_model)
+			this.Elements.capturepoints.Children.Add(panel)
+		}
+	}
 
 	SetupIndicators()
 	{
@@ -245,7 +305,7 @@ class hud : hud_Designer
 		} else {
 			this.Elements.nn_request.Style = "nn_request";
 		}
-		this.Elements.nn_request.ReloadStyle();	
+		this.Elements.nn_request.ReloadStyle();
 	}
     
 	ObjectiveUpdate(nnids)
@@ -327,6 +387,8 @@ class hud : hud_Designer
 	    } else {
 		    e.selection.Visible = false
 	    }
+		
+		this.SetupCapturePoints();
     }
     
     UpdateManeuverState()

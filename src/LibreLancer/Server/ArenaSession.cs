@@ -1,6 +1,7 @@
 ﻿using LibreLancer.Data.Arena;
 using LibreLancer.Data.Universe;
 using LibreLancer.GameData;
+using LibreLancer.Net.Protocol;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using System;
 using System.IO;
@@ -39,14 +40,18 @@ namespace LibreLancer.Server
             foreach (int i in Enumerable.Range(0, this.CapPoints.Length))
             {
                 var system = Server.GameData.Systems.Get(this.CurrentMap.CapturePoints[i].System);
-                this.CapPoints[i] = new CapturePoint
+                this.CapPoints[i] = new CapturePoint()
                 {
-                    FactionShips = new byte[this.CurrentMap.Factions.Count],
-                    OwningFaction = -1,
-                    Progress = 0,
-                    FactionWithProgress = -1,
+                    Net = new NetCapturePoint
+                    {
+                        FactionShips = new byte[this.CurrentMap.Factions.Count],
+                        OwningFaction = -1,
+                        Progress = 0,
+                        FactionWithProgress = -1,
+                    },
                     Template = this.CurrentMap.CapturePoints[i],
                 };
+
                 this.Server.Worlds.RequestWorld(system,
                     w =>
                     {
@@ -68,6 +73,8 @@ namespace LibreLancer.Server
             this.startTime = Server.TotalTime;
         }
 
+        double LastCapturePointUpdate;
+
         public void Update(TimeSpan timeDelta) //called from the main loop
         {
             if (this.CurrentMap is null)
@@ -75,7 +82,22 @@ namespace LibreLancer.Server
                 this.NextMap();
             }
 
-            var progress = timeDelta.TotalSeconds / SecondsToCapture;
+            //todo: instant feedback when change cap status
+            this.ComputeCaptureProgress(timeDelta);
+
+            if (Server.TotalTime - LastCapturePointUpdate >= 0.1) //update capture point information every 100 ms
+            {
+                LastCapturePointUpdate = Server.TotalTime;
+                foreach (var player in this.Server.AllPlayers)
+                {
+                    player.RpcClient.UpdateCapturePoints(this.CapPoints.Select(p => p.Net).ToArray());
+                }
+            }
+        }
+
+        void ComputeCaptureProgress(TimeSpan timeDelta)
+        {
+            var progress = (float)timeDelta.TotalSeconds / SecondsToCapture;
             foreach (var capPoint in this.CapPoints)
             {
                 if (capPoint.World is null)
@@ -84,9 +106,9 @@ namespace LibreLancer.Server
                 }
 
                 int cappingFaction = -1;
-                foreach (int iFaction in Enumerable.Range(0, capPoint.FactionShips.Length))
+                foreach (int iFaction in Enumerable.Range(0, capPoint.Net.FactionShips.Length))
                 {
-                    if (capPoint.FactionShips[iFaction] > 0)
+                    if (capPoint.Net.FactionShips[iFaction] > 0)
                     {
                         if (cappingFaction > 0)
                         {
@@ -101,51 +123,49 @@ namespace LibreLancer.Server
                     }
                 }
 
-                if (cappingFaction >= 0 && cappingFaction == capPoint.OwningFaction) //faction capping its own point
+                if (cappingFaction >= 0 && cappingFaction == capPoint.Net.OwningFaction) //faction capping its own point
                 {
-                    capPoint.Progress -= progress * 2;
+                    capPoint.Net.Progress -= progress * 2;
                 }
                 else if (cappingFaction >= 0) //faction capping another's point.
                 {
-                    if (cappingFaction == capPoint.FactionWithProgress || cappingFaction == -1) //making own progress
+                    if (cappingFaction == capPoint.Net.FactionWithProgress || cappingFaction == -1) //making own progress
                     {
-                        capPoint.FactionWithProgress = (sbyte)cappingFaction;
-                        capPoint.Progress += progress;
+                        capPoint.Net.FactionWithProgress = (sbyte)cappingFaction;
+                        capPoint.Net.Progress += progress;
                     }
                     else //resetting somebody else's progress
                     {
-                        capPoint.Progress -= progress * 2;
-                        if (capPoint.Progress < 0)
+                        capPoint.Net.Progress -= progress * 2;
+                        if (capPoint.Net.Progress < 0)
                         {
-                            capPoint.Progress = -capPoint.Progress / 2;
-                            capPoint.FactionWithProgress = (sbyte)cappingFaction;
+                            capPoint.Net.Progress = -capPoint.Net.Progress / 2;
+                            capPoint.Net.FactionWithProgress = (sbyte)cappingFaction;
                         }
                     }
 
-                    if (capPoint.Progress >= 1)
+                    if (capPoint.Net.Progress >= 1)
                     {
-                        capPoint.OwningFaction = capPoint.FactionWithProgress;
-                        capPoint.Progress = 0;
+                        capPoint.Net.OwningFaction = capPoint.Net.FactionWithProgress;
+                        capPoint.Net.Progress = 0;
                     }
                 }
                 else //nobody's capping
                 {
-                    capPoint.Progress -= progress;
+                    capPoint.Net.Progress -= progress;
                 }
 
-                capPoint.Progress = MathHelper.Clamp(capPoint.Progress, 0, 1);
-                if (capPoint.Progress == 0)
+                capPoint.Net.Progress = MathHelper.Clamp(capPoint.Net.Progress, 0, 1);
+                if (capPoint.Net.Progress == 0)
                 {
-                    capPoint.FactionWithProgress = 0;
+                    capPoint.Net.FactionWithProgress = 0;
                 }
-
-                Console.WriteLine(capPoint.ToString());
 
                 //count the players close enough to the object.
                 var capObject = capPoint.World.GameWorld.GetObject(capPoint.Template.Object);
-                for (int i = 0; i < capPoint.FactionShips.Length; i++)
+                for (int i = 0; i < capPoint.Net.FactionShips.Length; i++)
                 {
-                    capPoint.FactionShips[i] = 0;
+                    capPoint.Net.FactionShips[i] = 0;
                 }
                 foreach (var player in capPoint.World.Players)
                 {
@@ -158,7 +178,7 @@ namespace LibreLancer.Server
                     if (Math.Abs(delta.Length()) < 1000)
                     {
                         Console.WriteLine($"capping!");
-                        capPoint.FactionShips[player.Key.ArenaFaction]++;
+                        capPoint.Net.FactionShips[player.Key.ArenaFaction]++;
                     }
                 }
             }
@@ -198,16 +218,9 @@ namespace LibreLancer.Server
 
     public class CapturePoint
     {
-        public sbyte OwningFaction;
-        public byte[] FactionShips;
-        public sbyte FactionWithProgress;
-        public double Progress;
+        public NetCapturePoint Net = new NetCapturePoint();
+
         public ServerWorld World;
         public ArenaCapturePoint Template;
-
-        public override string ToString()
-        {
-            return $@"Owning Faction: {OwningFaction}, Ships: {FactionShips}, Faction with progress: {FactionWithProgress}, Progress: {Progress}";
-        }
     }
 }

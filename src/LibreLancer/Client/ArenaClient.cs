@@ -1,4 +1,5 @@
 ﻿using LibreLancer.Data.Arena;
+using LibreLancer.Net.Protocol;
 using LibreLancer.Server;
 using System;
 using System.Collections.Generic;
@@ -40,6 +41,7 @@ namespace LibreLancer.Client
         }
 
         public bool GetAttentionRequired() => this.session.ArenaFaction < 0 && this.session.ArenaMap != null;
+
         public string GetArenaText()
         {
             if (this.session.ArenaFaction < 0)
@@ -55,6 +57,26 @@ namespace LibreLancer.Client
         public void PickFaction(int i)
         {
             this.session.RpcServer.PickArenaFaction(i);
+        }
+
+        public NetCapturePoint[] GetCapturePoints()
+        {
+            return session.CapturePoints;
+        }
+
+        public string GetFactionColor(int faction)
+        {
+            if (!session.Game.GameData.ArenaMaps.TryGetValue(session.ArenaMap, out var map))
+            {
+                return null;
+            }
+
+            if (map.Factions.Count <= faction)
+            {
+                return null;
+            }
+
+            return map.Factions[faction].Color;
         }
     }
 
